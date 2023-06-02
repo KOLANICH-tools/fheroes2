@@ -179,7 +179,7 @@ msgid "GIFT"
 msgstr "ОТДАТЬ"
 
 msgid "guildWell|EXIT"
-msgstr ""
+msgstr "ВЫХОД"
 
 msgid "DIFFICULTY"
 msgstr "СЛОЖНОСТЬ"
@@ -2685,17 +2685,17 @@ msgid "Are you sure you want to dismiss this army?"
 msgstr "Вы уверены, что хотите распустить этот отряд?"
 
 msgid "Upgrade"
-msgstr ""
+msgstr "Улучшить"
 
 #, fuzzy
 msgid "Upgrade your troops."
 msgstr "Вы не можете позволить себе улучшения для Вашей армии!"
 
 msgid "Dismiss"
-msgstr ""
+msgstr "Распустить"
 
 msgid "Dismiss this army."
-msgstr ""
+msgstr "Распустить эту армию"
 
 msgid "Followers"
 msgstr "Последователи"
@@ -3507,14 +3507,14 @@ msgid "Best Monster:"
 msgstr "Лучший отряд:"
 
 msgid "Create a map that is %{size} squares wide and %{size} squares high."
-msgstr ""
+msgstr "Создать карту, которая шириной в %{size} клеток и высотой в %{size} клеток."
 
 #, fuzzy
 msgid "Cancel back to the New Map menu."
 msgstr "Вернуться в главное меню."
 
 msgid "Create a new map either from scratch or using the random map generator."
-msgstr ""
+msgstr "Создать новую карту, или \"с чистого листа\", или используя генератор случайных карт."
 
 #, fuzzy
 msgid "New Map"
@@ -3525,19 +3525,19 @@ msgid "Load Map"
 msgstr "Загрузка игры"
 
 msgid "Load an existing map."
-msgstr ""
+msgstr "Загрузить существующую карту."
 
 msgid "Cancel back to the main menu."
 msgstr "Вернуться в главное меню."
 
 msgid "From Scratch"
-msgstr ""
+msgstr "С чистого листа"
 
 msgid "Start from scratch with a blank map."
-msgstr ""
+msgstr "Начать с начала с пустой картой."
 
 msgid "Create a randomly generated map."
-msgstr ""
+msgstr "Создать случайно сгенерированную карту."
 
 #, fuzzy
 msgid "Random"
@@ -4290,7 +4290,7 @@ msgid "One of the four new campaigns from the Price of Loyalty expansion set."
 msgstr "Одна из четырёх новых кампаний из набора дополнений \"Цена верности\"."
 
 msgid "Loading video. Please wait..."
-msgstr ""
+msgstr "Гружу видео. Пожалуйста, подождите..."
 
 msgid "Host"
 msgstr "Хост"
