@@ -1,6 +1,6 @@
 /***************************************************************************
  *   fheroes2: https://github.com/ihhub/fheroes2                           *
- *   Copyright (C) 2019 - 2022                                             *
+ *   Copyright (C) 2019 - 2023                                             *
  *                                                                         *
  *   Free Heroes2 Engine: http://sourceforge.net/projects/fheroes2         *
  *   Copyright (C) 2009 by Andrey Afletdinov <fheroes2@gmail.com>          *
@@ -119,301 +119,240 @@ void Interface::GameBorderRedraw( const bool viewWorldMode )
     fheroes2::Point dstpt;
     const fheroes2::Sprite & icnadv = fheroes2::AGG::GetICN( isEvilInterface ? ICN::ADVBORDE : ICN::ADVBORD, 0 );
 
-    // TOP BORDER
-    srcrt.x = 0;
-    srcrt.y = 0;
-    srcrt.width = isEvilInterface ? 153 : 193;
-    srcrt.height = BORDERWIDTH;
-    dstpt.x = srcrt.x;
-    dstpt.y = srcrt.y;
-    fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-    srcrt.x += srcrt.width;
+    auto drawHorizontalBorder = [&]( const bool isTop ) {
+        // leftElement
+        srcrt.x = 0;
+        srcrt.y = isTop ? 0 : ( icnadv.height() - BORDERWIDTH );
+        srcrt.width = isEvilInterface ? ( isTop ? 153 : 129 ) : 193;
+        srcrt.height = BORDERWIDTH;
+        dstpt.x = srcrt.x;
+        dstpt.y = isTop ? srcrt.y : displayHeight - BORDERWIDTH;
+        fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
+        dstpt.x += srcrt.width;
+        srcrt.x += srcrt.width;
 
-    srcrt.width = 6;
-    dstpt.x = srcrt.x;
-    repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, srcrt.width + topPadWidthLeft, BORDERWIDTH );
-    dstpt.x += srcrt.width + topPadWidthLeft;
-    srcrt.x += srcrt.width;
+        // transitioning line to the left block
+        srcrt.width = 6;
+        const int32_t padWidthLeft = isTop ? topPadWidthLeft : bottomPadWidthLeft;
+        repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, srcrt.width + padWidthLeft, BORDERWIDTH );
+        dstpt.x += srcrt.width + padWidthLeft;
+        srcrt.x += srcrt.width;
 
-    srcrt.width = isEvilInterface ? 64 : 24;
-    fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-    dstpt.x += srcrt.width;
-    srcrt.x += srcrt.width;
+        // left middle block
+        srcrt.width = isEvilInterface ? ( isTop ? 64 : 90 ) : 24;
+        fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
+        dstpt.x += srcrt.width;
+        srcrt.x += srcrt.width;
 
-    srcrt.width = TILEWIDTH;
-    repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, topRepeatWidth, BORDERWIDTH );
-    dstpt.x += topRepeatWidth;
-    srcrt.x += TILEWIDTH;
+        // sculls/diamonds pattern
+        srcrt.width = isTop ? TILEWIDTH : bottomTileWidth;
+        const int32_t someWidth = isTop ? topRepeatWidth : bottomRepeatWidth;
+        repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, someWidth, BORDERWIDTH );
+        dstpt.x += someWidth;
+        srcrt.x += srcrt.width;
 
-    srcrt.width = isEvilInterface ? 65 : 25;
-    fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-    dstpt.x += srcrt.width;
-    srcrt.x += srcrt.width;
+        // right middle block
+        srcrt.width = isEvilInterface ? ( isTop ? 65 : 86 ) : 25; // evil bottom border is asymmetric
+        fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
+        dstpt.x += srcrt.width;
+        srcrt.x += srcrt.width;
 
-    srcrt.width = 6;
-    repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, srcrt.width + topPadWidthRight, BORDERWIDTH );
-    dstpt.x += srcrt.width + topPadWidthRight;
-    srcrt.x += srcrt.width;
+        // transitioning line to the right block
+        srcrt.width = 6;
+        const int32_t padWidthRight = isTop ? topPadWidthRight : bottomPadWidthRight;
+        repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, srcrt.width + padWidthRight, BORDERWIDTH );
+        dstpt.x += srcrt.width + padWidthRight;
+        srcrt.x += srcrt.width;
 
-    srcrt.width = icnadv.width() - srcrt.x;
-    fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
+        // right large block overlapping map right panel border
+        srcrt.width = icnadv.width() - srcrt.x;
+        fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
+    };
 
-    // LEFT BORDER
-    srcrt.x = 0;
-    srcrt.y = BORDERWIDTH;
-    srcrt.width = BORDERWIDTH;
-    srcrt.height = 255 - BORDERWIDTH;
-    dstpt.x = srcrt.x;
-    dstpt.y = srcrt.y;
-    fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-    dstpt.y += srcrt.height;
-    srcrt.y += srcrt.height;
+    drawHorizontalBorder( true );
+    drawHorizontalBorder( false );
 
-    if ( isEvilInterface ) {
+    auto drawLeftBorder = [&]() {
+        srcrt.x = 0;
+        srcrt.y = BORDERWIDTH;
+        srcrt.width = BORDERWIDTH;
+        dstpt.x = srcrt.x;
+        dstpt.y = srcrt.y;
+
+        // upper part, column with skull and spine/vine on top with with few rubies / cups
+        srcrt.height = 255 - BORDERWIDTH;
+        fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
+        dstpt.y += srcrt.height;
+        srcrt.y += srcrt.height;
+
+        if ( isEvilInterface ) {
+            // upper middle pattern block - column with a blinking ruby in the bottom
+            srcrt.height = TILEWIDTH;
+            repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, vertRepeatHeightTop );
+            dstpt.y += vertRepeatHeightTop;
+            srcrt.y += TILEWIDTH;
+
+            // upper middle curvy block / column piece with blinking ruby
+            srcrt.width = BORDERWIDTH;
+            srcrt.height = 35;
+            fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
+            dstpt.y += srcrt.height;
+            srcrt.y += srcrt.height;
+
+            // middle transition area (stright lines)
+            srcrt.height = 6;
+            repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, srcrt.height + vertPadHeight );
+            dstpt.y += srcrt.height + vertPadHeight;
+            srcrt.y += srcrt.height;
+
+            // column with a scull and ruby in the middle
+            srcrt.height = 103;
+            fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
+            dstpt.y += srcrt.height;
+            srcrt.y += srcrt.height;
+
+            // lower middle middle evil square brick
+            srcrt.height = TILEWIDTH;
+            fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
+            dstpt.y += TILEWIDTH;
+
+            // lower evil square blicks
+            repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, vertRepeatHeightBottom );
+            dstpt.y += vertRepeatHeightBottom;
+            srcrt.y += TILEWIDTH;
+        }
+        else {
+            // column body pattern
+            srcrt.height = TILEWIDTH;
+            repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, vertRepeatHeight );
+            dstpt.y += vertRepeatHeight;
+            srcrt.y += TILEWIDTH;
+
+            // column body lower part
+            srcrt.height = 125;
+            fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
+            dstpt.y += srcrt.height;
+            srcrt.y += srcrt.height;
+
+            // lower transition area, stright lines pattern
+            srcrt.height = 4;
+            repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, srcrt.height + vertPadHeight );
+            dstpt.y += srcrt.height + vertPadHeight;
+            srcrt.y += srcrt.height;
+        }
+
+        // good: column lower piece with vines, evil: element is not present
+        srcrt.height = icnadv.height() - BORDERWIDTH - srcrt.y;
+        fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
+    };
+    drawLeftBorder();
+
+    auto drawPanelBorder = [&]( const bool isMiddle ) {
+        const int32_t xOffset = isMiddle ? ( RADARWIDTH + BORDERWIDTH ) : 0;
+        srcrt.x = icnadv.width() - BORDERWIDTH - xOffset;
+        srcrt.y = BORDERWIDTH;
+        srcrt.width = BORDERWIDTH;
+        srcrt.height = 255 - BORDERWIDTH;
+        dstpt.x = displayWidth - BORDERWIDTH - xOffset;
+
+        // top of the column
+        dstpt.y = srcrt.y;
+        fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
+        dstpt.y += srcrt.height;
+        srcrt.y += srcrt.height;
+
+        // column piece
         srcrt.height = TILEWIDTH;
         repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, vertRepeatHeightTop );
         dstpt.y += vertRepeatHeightTop;
         srcrt.y += TILEWIDTH;
 
-        srcrt.width = BORDERWIDTH;
-        srcrt.height = 35;
+        // top-to-horizontal angle (evil) - "T" (good), the lower angle of heroes area, column, in the evil border - with gems
+        srcrt.height = isEvilInterface ? 35 : 50;
         fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
+
+        // hide embranchment
+        if ( viewWorldMode ) {
+            fheroes2::Rect fixrt( ( isMiddle ? 478 : 624 ), isEvilInterface ? ( isMiddle ? 137 : 139 ) : 345, 3, isEvilInterface ? 15 : 20 );
+            fheroes2::Point fixpt( dstpt.x + ( isMiddle ? 14 : 0 ), dstpt.y + 18 );
+            fheroes2::Blit( icnadv, fixrt.x, fixrt.y, display, fixpt.x, fixpt.y, fixrt.width, fixrt.height );
+        }
+
         dstpt.y += srcrt.height;
         srcrt.y += srcrt.height;
 
-        srcrt.height = 6;
-        repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, srcrt.height + vertPadHeight );
-        dstpt.y += srcrt.height + vertPadHeight;
-        srcrt.y += srcrt.height;
+        if ( isEvilInterface ) {
+            // stright lines, transition area
+            srcrt.height = 6;
+            repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, srcrt.height + vertPadHeight );
+            dstpt.y += srcrt.height + vertPadHeight;
+            srcrt.y += srcrt.height;
 
-        srcrt.height = 103;
+            // lower button to calendar area, column head with scull and gem
+            srcrt.height = 103;
+            fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
+            dstpt.y += srcrt.height;
+            srcrt.y += srcrt.height;
+
+            // A single brick about the first row of resources
+            srcrt.height = TILEWIDTH;
+            fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
+            dstpt.y += TILEWIDTH;
+
+            // bricks untill the bottom
+            repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, vertRepeatHeightBottom );
+            dstpt.y += vertRepeatHeightBottom;
+            srcrt.y += TILEWIDTH;
+        }
+        else {
+            // Piece of column exactly in the middle of buttons
+            srcrt.height = TILEWIDTH;
+            fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
+            dstpt.y += TILEWIDTH;
+
+            // column from the lower row of buttons till some distance from the bottom
+            repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, vertRepeatHeightBottom );
+            dstpt.y += vertRepeatHeightBottom;
+            srcrt.y += TILEWIDTH;
+
+            // bottom middle - transition to column covered with vine
+            srcrt.height = 43;
+            fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
+            dstpt.y += srcrt.height;
+            srcrt.y += srcrt.height;
+
+            // piece of colunn covered with wine
+            srcrt.height = ( isMiddle ? 8 : 4 ); // middle border is special on good interface due to all the green leaves
+            repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, srcrt.height + vertPadHeight );
+            dstpt.y += srcrt.height + vertPadHeight;
+            srcrt.y += srcrt.height;
+        }
+
+        // good - blocks with vine and leaves, evil - nothing
+        srcrt.height = icnadv.height() - BORDERWIDTH - srcrt.y;
         fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-        dstpt.y += srcrt.height;
-        srcrt.y += srcrt.height;
+    };
+    drawPanelBorder( true );
+    drawPanelBorder( false );
 
-        srcrt.height = TILEWIDTH;
+    auto drawHeroesAndTownsHorizontalBorders = [&]() {
+        // bottom border of the map, top border of heroes and towns
+        srcrt.x = icnadv.width() - RADARWIDTH - BORDERWIDTH;
+        srcrt.y = RADARWIDTH + BORDERWIDTH;
+        srcrt.width = RADARWIDTH;
+        srcrt.height = BORDERWIDTH;
+        dstpt.x = displayWidth - RADARWIDTH - BORDERWIDTH;
+        dstpt.y = srcrt.y;
         fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-        dstpt.y += TILEWIDTH;
 
-        repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, vertRepeatHeightBottom );
-        dstpt.y += vertRepeatHeightBottom;
-        srcrt.y += TILEWIDTH;
-    }
-    else {
-        srcrt.height = TILEWIDTH;
-        repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, vertRepeatHeight );
-        dstpt.y += vertRepeatHeight;
-        srcrt.y += TILEWIDTH;
-
-        srcrt.height = 125;
-        fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-        dstpt.y += srcrt.height;
-        srcrt.y += srcrt.height;
-
-        srcrt.height = 4;
-        repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, srcrt.height + vertPadHeight );
-        dstpt.y += srcrt.height + vertPadHeight;
-        srcrt.y += srcrt.height;
-    }
-
-    srcrt.height = icnadv.height() - BORDERWIDTH - srcrt.y;
-    fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-
-    // MIDDLE BORDER
-    srcrt.x = icnadv.width() - RADARWIDTH - 2 * BORDERWIDTH;
-    srcrt.y = BORDERWIDTH;
-    srcrt.width = BORDERWIDTH;
-    srcrt.height = 255 - BORDERWIDTH;
-    dstpt.x = displayWidth - RADARWIDTH - 2 * BORDERWIDTH;
-    dstpt.y = srcrt.y;
-    fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-    dstpt.y += srcrt.height;
-    srcrt.y += srcrt.height;
-
-    srcrt.height = TILEWIDTH;
-    repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, vertRepeatHeightTop );
-    dstpt.y += vertRepeatHeightTop;
-    srcrt.y += TILEWIDTH;
-
-    srcrt.height = isEvilInterface ? 35 : 50;
-    fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-
-    // hide embranchment
-    if ( viewWorldMode ) {
-        fheroes2::Rect fixrt( 478, isEvilInterface ? 137 : 345, 3, isEvilInterface ? 15 : 20 );
-        fheroes2::Point fixpt( dstpt.x + 14, dstpt.y + 18 );
-        fheroes2::Blit( icnadv, fixrt.x, fixrt.y, display, fixpt.x, fixpt.y, fixrt.width, fixrt.height );
-    }
-
-    dstpt.y += srcrt.height;
-    srcrt.y += srcrt.height;
-
-    if ( isEvilInterface ) {
-        srcrt.height = 6;
-        repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, srcrt.height + vertPadHeight );
-        dstpt.y += srcrt.height + vertPadHeight;
-        srcrt.y += srcrt.height;
-
-        srcrt.height = 103;
-        fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-        dstpt.y += srcrt.height;
-        srcrt.y += srcrt.height;
-
-        srcrt.height = TILEWIDTH;
-        fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-        dstpt.y += TILEWIDTH;
-
-        repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, vertRepeatHeightBottom );
-        dstpt.y += vertRepeatHeightBottom;
-        srcrt.y += TILEWIDTH;
-    }
-    else {
-        srcrt.height = TILEWIDTH;
-        fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-        dstpt.y += TILEWIDTH;
-
-        repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, vertRepeatHeightBottom );
-        dstpt.y += vertRepeatHeightBottom;
-        srcrt.y += TILEWIDTH;
-
-        srcrt.height = 43;
-        fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-        dstpt.y += srcrt.height;
-        srcrt.y += srcrt.height;
-
-        srcrt.height = 8; // middle border is special on good interface due to all the green leaves
-        repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, srcrt.height + vertPadHeight );
-        dstpt.y += srcrt.height + vertPadHeight;
-        srcrt.y += srcrt.height;
-    }
-
-    srcrt.height = icnadv.height() - BORDERWIDTH - srcrt.y;
-    fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-
-    // RIGHT BORDER
-    srcrt.x = icnadv.width() - BORDERWIDTH;
-    srcrt.y = BORDERWIDTH;
-    srcrt.width = BORDERWIDTH;
-    srcrt.height = 255 - BORDERWIDTH;
-    dstpt.x = displayWidth - BORDERWIDTH;
-    dstpt.y = srcrt.y;
-    fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-    dstpt.y += srcrt.height;
-    srcrt.y += srcrt.height;
-
-    srcrt.height = TILEWIDTH;
-    repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, vertRepeatHeightTop );
-    dstpt.y += vertRepeatHeightTop;
-    srcrt.y += TILEWIDTH;
-
-    srcrt.height = isEvilInterface ? 35 : 50;
-    fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-
-    // hide embranchment
-    if ( viewWorldMode ) {
-        fheroes2::Rect fixrt( 624, isEvilInterface ? 139 : 345, 3, isEvilInterface ? 15 : 20 );
-        fheroes2::Point fixpt( dstpt.x, dstpt.y + 18 );
-        fheroes2::Blit( icnadv, fixrt.x, fixrt.y, display, fixpt.x, fixpt.y, fixrt.width, fixrt.height );
-    }
-
-    dstpt.y += srcrt.height;
-    srcrt.y += srcrt.height;
-
-    if ( isEvilInterface ) {
-        srcrt.height = 6;
-        repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, srcrt.height + vertPadHeight );
-        dstpt.y += srcrt.height + vertPadHeight;
-        srcrt.y += srcrt.height;
-
-        srcrt.height = 103;
-        fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-        dstpt.y += srcrt.height;
-        srcrt.y += srcrt.height;
-
-        srcrt.height = TILEWIDTH;
-        fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-        dstpt.y += TILEWIDTH;
-
-        repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, vertRepeatHeightBottom );
-        dstpt.y += vertRepeatHeightBottom;
-        srcrt.y += TILEWIDTH;
-    }
-    else {
-        srcrt.height = TILEWIDTH;
-        fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-        dstpt.y += TILEWIDTH;
-
-        repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, vertRepeatHeightBottom );
-        dstpt.y += vertRepeatHeightBottom;
-        srcrt.y += TILEWIDTH;
-
-        srcrt.height = 43;
-        fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-        dstpt.y += srcrt.height;
-        srcrt.y += srcrt.height;
-
-        srcrt.height = 4;
-        repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, BORDERWIDTH, srcrt.height + vertPadHeight );
-        dstpt.y += srcrt.height + vertPadHeight;
-        srcrt.y += srcrt.height;
-    }
-
-    srcrt.height = icnadv.height() - BORDERWIDTH - srcrt.y;
-    fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-
-    // BOTTOM BORDER
-    srcrt.x = 0;
-    srcrt.y = icnadv.height() - BORDERWIDTH;
-    srcrt.width = isEvilInterface ? 129 : 193;
-    srcrt.height = BORDERWIDTH;
-    dstpt.x = srcrt.x;
-    dstpt.y = displayHeight - BORDERWIDTH;
-    fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-    dstpt.x += srcrt.width;
-    srcrt.x += srcrt.width;
-
-    srcrt.width = 6;
-    repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, srcrt.width + bottomPadWidthLeft, BORDERWIDTH );
-    dstpt.x += srcrt.width + bottomPadWidthLeft;
-    srcrt.x += srcrt.width;
-
-    srcrt.width = isEvilInterface ? 90 : 24;
-    fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-    dstpt.x += srcrt.width;
-    srcrt.x += srcrt.width;
-
-    srcrt.width = bottomTileWidth;
-    repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, bottomRepeatWidth, BORDERWIDTH );
-    dstpt.x += bottomRepeatWidth;
-    srcrt.x += srcrt.width;
-
-    srcrt.width = isEvilInterface ? 86 : 25; // evil bottom border is asymmetric
-    fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-    dstpt.x += srcrt.width;
-    srcrt.x += srcrt.width;
-
-    srcrt.width = 6;
-    repeatPattern( icnadv, srcrt.x, srcrt.y, srcrt.width, srcrt.height, display, dstpt.x, dstpt.y, srcrt.width + bottomPadWidthRight, BORDERWIDTH );
-    dstpt.x += srcrt.width + bottomPadWidthRight;
-    srcrt.x += srcrt.width;
-
-    srcrt.width = icnadv.width() - srcrt.x;
-    fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-
-    // ICON BORDER
-    srcrt.x = icnadv.width() - RADARWIDTH - BORDERWIDTH;
-    srcrt.y = RADARWIDTH + BORDERWIDTH;
-    srcrt.width = RADARWIDTH;
-    srcrt.height = BORDERWIDTH;
-    dstpt.x = displayWidth - RADARWIDTH - BORDERWIDTH;
-    dstpt.y = srcrt.y;
-    fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-
-    if ( !viewWorldMode ) {
-        dstpt.y = srcrt.y + BORDERWIDTH + iconsCount * 32;
-        srcrt.y = srcrt.y + BORDERWIDTH + 4 * 32;
-        fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
-    }
+        if ( !viewWorldMode ) {
+            // bottom border of heroes and towns area, top border of resources area
+            dstpt.y = srcrt.y + BORDERWIDTH + iconsCount * 32;
+            srcrt.y = srcrt.y + BORDERWIDTH + 4 * 32;
+            fheroes2::Blit( icnadv, srcrt.x, srcrt.y, display, dstpt.x, dstpt.y, srcrt.width, srcrt.height );
+        }
+    };
+    drawHeroesAndTownsHorizontalBorders();
 }
 
 Interface::BorderWindow::BorderWindow( const fheroes2::Rect & rt )
